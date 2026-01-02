@@ -16,9 +16,13 @@ FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
+# Downloading the OpenTelemetry agent
+ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar /app/opentelemetry-javaagent.jar
+
 EXPOSE 8080
 
-# Copy the built artifact from build stage
+# Copy the built artifact
 COPY --from=build /app/target/bookstore_backend-0.0.1-SNAPSHOT.jar /app/bookstore_backend.jar
 
-ENTRYPOINT ["java", "-jar", "bookstore_backend.jar"]
+# Add -javaagent
+ENTRYPOINT ["java", "-javaagent:/app/opentelemetry-javaagent.jar", "-jar", "bookstore_backend.jar"]
