@@ -1,3 +1,4 @@
+# Stage 1: Build
 FROM node:alpine AS build
 
 WORKDIR /app
@@ -10,22 +11,16 @@ COPY . .
 
 RUN npm run build
 
-
-
-FROM node:alpine
-
+# Stage 2: Preview (Run)
+FROM node:18-alpine
 WORKDIR /app
 
-COPY --from=build /app/dist/ /app/dist/
+COPY --from=build /app/dist ./dist
+COPY package*.json ./
+COPY vite.config.ts ./
+
+RUN npm install typescript vite --save-dev
 
 EXPOSE 5173
 
-COPY package.json .
-
-COPY vite.config.ts .
-
-RUN npm install typescript
-
-EXPOSE 5173
-
-CMD ["npm", "run", "preview"]
+CMD ["npm", "run", "preview", "--", "--host", "--port", "5173"]
